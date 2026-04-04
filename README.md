@@ -35,6 +35,29 @@ Ao longo da simulação, a cada geração, os resultados são registrados em um 
 
 # Requisitos Técnicos 
 
-O projeto deve ser desenvolvido em C, utilizando boas práticas de organização do código, com separação em pastas (src, headers). A compilação deverá ser gerenciada via Makefile, e o executável precisa ser compatível com sistemas Linux. Também é exigida uma análise de desempenho para análisar da complexidade das principais rotinas e discussão sobre o comportamento do erro ao longo das gerações.
+O projeto deve ser desenvolvido em C, utilizando manipulação de vetores e matrizes, uso de estruturas dinâmicas, aritmética básica de ponteiros e organização modular de programas em C, com separação em pastas (src, headers). A compilação deverá ser gerenciada via Makefile, e o executável precisa ser compatível com sistemas Linux. Também é exigida uma análise de desempenho para análisar da complexidade das principais rotinas e discussão sobre o comportamento do erro ao longo das gerações.
 
+# Entrada de Dados
+## Arquivo de entrada (input.dat):
+O arquivo de entrada é estruturado da seguinte forma: A primeira linha contem os valores totais da quantidade de numeros de pontos e de indivíduos da população de amostra e a quantidade de gerações de interações do algorítmo, correspondendo as variáveis n, m e G. O restante do arquivo contem os pares de pontos x e y que o algorítimo deve ler. 
+
+```
+n m G
+x1 y1
+x2 y2
+...
+xn yn
+```
+
+```
+8 20 500
+1 3
+2 5
+3 7
+4 9
+5 11
+6 13
+7 15
+8 17
+```
 
