@@ -1,59 +1,127 @@
-# Trabalho1_AEDS
-Trabalho de Aquecimento: Algoritmos Genéticos
-# Introdução
-Este projeto foi desenvolvido no contexto da disciplina de Análise Estrutural de Dados I (AEDSI), do Centro Federal de Educação Tecnológica de Minas Gerais (CEFET-MG), Campus Divinópolis.
+# Trabalho 1 — AEDSI
+## Algoritmo Genético para Ajuste de Função Linear
 
-Este projeto implementa um Algoritmo Genético (AG) em linguagem C com o objetivo de encontrar os coeficientes a e b de uma reta de regressão linear do tipo:
+> Trabalho de Aquecimento da disciplina de Algoritmos e Estruturas de Dados I  
+> CEFET-MG — Campus Divinópolis  
+> Professor: Michel Pires da Silva
+
+---
+
+## Introdução
+
+Este projeto implementa um **Algoritmo Genético (AG)** em linguagem C com o objetivo de encontrar os coeficientes `a` e `b` de uma reta de regressão linear da forma:
+
 ```
-y = a * x + b
+ŷ = ax + b
 ```
-O AG evolui uma população de indivíduos ao longo de várias gerações, minimizando o erro quadrático médio entre os valores reais e os valores previstos pela reta.
 
-Além da abordagem evolutiva, o projeto também enfatiza aspectos fundamentais da programação em C, como manipulação de memória dinâmica, uso de ponteiros e organização modular do código.
+O AG evolui uma população de indivíduos ao longo de várias gerações, minimizando o **Erro Quadrático Médio (MSE)** entre os valores reais e os valores previstos pela reta. Cada indivíduo representa uma solução candidata, codificada como um par de parâmetros `(a, b)`.
 
----
-# Problema Proposto
-
-O problema consiste na implementação de um algoritmo genético capaz de ler valores de entrada de um arquivo, contendo uma amostra empírica de pontos (x, y) que permanecem constantes durante toda a execução. Esses dados constituem o espaço amostral sobre o qual as soluções candidatas são avaliadas.
-
-A população inicial é gerada de forma aleatória, sendo estruturada como um conjunto de vetores de dimensão *m* × 2, onde *m* corresponde ao número total de indivíduos e cada vetor representa um indivíduo.
+Além da abordagem evolutiva, o projeto enfatiza aspectos fundamentais da programação em C: manipulação de memória dinâmica, uso de ponteiros e organização modular do código.
 
 ---
 
-# Funcionalidades
-O algoritmo deve ser capaz de ler valores de entrada a partir de um arquivo externo, contendo uma amostra empírica de pontos (*x*, *y*), bem como a quantidade total desses pontos, o tamanho da população de indivíduos a ser simulada e o número de gerações do processo evolutivo. Esses parâmetros permanecem constantes durante toda a execução, constituindo o espaço amostral sobre o qual as soluções candidatas são avaliadas.
+## Problema Proposto
 
-A população inicial de indivíduos é gerada por meio de processos pseudoaleatórios, controlados por uma semente (*seed*), garantindo a reprodutibilidade dos experimentos. Dessa forma, diferentes execuções do algoritmo podem ser comparadas de maneira consistente sob as mesmas condições iniciais.
+Dado um conjunto fixo de pontos `D = {(x₁,y₁), (x₂,y₂), ..., (xₙ,yₙ)}`, o objetivo é encontrar os parâmetros `a` e `b` que minimizem a discrepância entre a reta estimada e os dados observados. O erro de cada indivíduo é calculado como:
 
-Cada indivíduo representa uma possível solução para o problema e é definido por um conjunto de parâmetros, sendo estruturado como um conjunto de vetores de dimensão *m × 2*, onde *m* corresponde ao número total de indivíduos e cada vetor representa um indivíduo.
+```
+MSE = (1/n) * Σ (yᵢ - (a·xᵢ + b))²
+```
 
----
-# Avaliação
-A avaliação dos indivíduos é realizada com base no ajuste de uma função linear (ŷ = ax + b) aos dados amostrais. Cada indivíduo representa um par de parâmetros (a, b), que define uma reta candidata no espaço de soluções.
+A partir do erro, define-se o **fitness** de cada indivíduo:
 
-O desempenho de cada indivíduo é medido pela discrepância entre os valores estimados pela função e os valores reais observados no conjunto de dados. Essa discrepância é calculada para todos os pontos e agregada por meio do Erro Quadrático Médio (MSE), obtido a partir da média dos quadrados das diferenças entre os valores reais e previstos.
+```
+fitness = 1 / (1 + MSE)
+```
 
-Com base nesse erro, define-se a função de fitness de cada indivíduo, de modo que soluções com menor erro apresentem maior aptidão. Para isso, utiliza-se uma transformação inversa do erro, garantindo que indivíduos mais ajustados aos dados possuam valores de fitness mais elevados.
-
----
-# Entrada/Saida
-
-A amostra de pontos é lida a partir de um arquivo externo input.dat, que contém os valores de entrada do problema, incluindo o número total de pontos (n), o tamanho da população de indivíduos (m) e a quantidade de gerações a serem simuladas (G). Esses dados são fundamentais para a inicialização do algoritmo e para a execução das etapas evolutivas.
-
-Ao longo da simulação, a cada geração, os resultados são registrados em um arquivo output.dat. Para cada iteração, são armazenados o maior valor de fitness encontrado, o erro associado a esse indivíduo e os respectivos parâmetros (a e b) que definem a melhor solução candidata naquele momento.
+Quanto menor o erro, maior o fitness — e mais próxima a solução está do ótimo.
 
 ---
-# Requisitos Técnicos 
 
-O projeto deve ser desenvolvido em C, utilizando manipulação de vetores e matrizes, uso de estruturas dinâmicas, aritmética básica de ponteiros e organização modular de programas em C, com separação em pastas (src, headers). A compilação deverá ser gerenciada via Makefile, e o executável precisa ser compatível com sistemas Linux. Também é exigida uma análise de desempenho para análisar da complexidade das principais rotinas e discussão sobre o comportamento do erro ao longo das gerações.
+## Estrutura do Projeto
+
+```
+Trabalho1AEDSI/
+├── src/
+│   ├── trabalho1.h       # Definições de structs e protótipos de funções
+│   ├── trabalho1.c       # Função principal (main) e loop evolutivo
+│   ├── individuos.c      # GerarPopulacao e Ordenar
+│   ├── operacoes.c       # CalculoErroFitness, Crossover e Mutacao
+│   └── pontos.c          # LerInputdatDados e GerarPontos
+├── config/
+│   ├── input.dat         # Parâmetros e pontos de entrada
+│   └── output.dat        # Resultados gerados por geração
+├── build/
+│   └── app               # Executável compilado
+└── Makefile
+```
 
 ---
-# Entrada de Dados
-## Arquivo de entrada (input.dat):
-O arquivo de entrada é estruturado da seguinte forma: A primeira linha contem os valores totais da quantidade de numeros de pontos e de indivíduos da população de amostra e a quantidade de gerações de interações do algorítmo, correspondendo as variáveis n, m e G. O restante do arquivo contem os pares de pontos x e y que o algorítimo deve ler. 
+
+## Estruturas de Dados
+
+O projeto utiliza três structs principais, definidas em `trabalho1.h`:
+
+### `Individuo`
+Representa uma solução candidata no espaço de busca.
+
+```c
+typedef struct {
+    float a, b;        // coeficientes da reta ŷ = ax + b
+    float fitness;     // aptidão do indivíduo (quanto maior, melhor)
+    float erro;        // erro quadrático médio (MSE)
+} Individuo;
+```
+
+### `Ponto`
+Representa um par de coordenadas do conjunto amostral fixo.
+
+```c
+typedef struct {
+    float x, y;        // coordenadas do ponto observado
+} Ponto;
+```
+
+### `Dados`
+Armazena os parâmetros de configuração do algoritmo.
+
+```c
+typedef struct {
+    int n;   // número de pontos do dataset
+    int m;   // tamanho da população
+    int G;   // número de gerações
+} Dados;
+```
+
+A população é gerenciada como um **vetor dinâmico de `m` indivíduos** (`Individuo *populacao`), alocado via `malloc`. Vetores auxiliares de pais e filhos com tamanho `m/2` são utilizados para as operações de crossover.
 
 ---
-### Formato do Arquivo de Entrada
+
+## Como Compilar e Executar
+
+> Requer ambiente **Linux** (Ubuntu ou Zorin recomendados) com `gcc` e `make`.
+
+Para limpar, compilar e executar em sequência:
+
+```bash
+make clean && make && make run
+```
+
+Para apenas executar o binário já compilado:
+
+```bash
+./build/app
+```
+
+---
+
+## Entrada e Saída
+
+### Arquivo de entrada — `config/input.dat`
+
+A primeira linha contém os parâmetros de configuração; as linhas seguintes, os pares de pontos:
+
 ```
 n m G
 x1 y1
@@ -61,7 +129,15 @@ x2 y2
 ...
 xn yn
 ```
-### Exemplo (input.dat incluído):
+
+| Parâmetro | Descrição |
+|-----------|-----------|
+| `n` | Número de pontos do dataset |
+| `m` | Tamanho da população de indivíduos |
+| `G` | Número de gerações do processo evolutivo |
+
+**Exemplo (`input.dat` incluído):**
+
 ```
 8 20 500
 1 3
@@ -74,141 +150,122 @@ xn yn
 8 17
 ```
 
----
-# Metodologia
-A metodologia implementada no projeto é dividida em várias etapas:
+### Arquivo de saída — `config/output.dat`
 
----
-## LerInputdatDados
-```
-void LerInputdatDados(FILE *file, Dados *dados);
-```
-Lê os parâmetros n, m e G da primeira linha do arquivo input.dat e os armazena na struct Dados. Caso a leitura falhe, exibe uma mensagem de erro e encerra o programa.
-
----
-## Gerar População
-```
-void GerarPopulacao(Individuo *populacao, int m)
-```
-A função GerarPopulacao é responsável por inicializar a população de indivíduos. Cada indivíduo recebe valores aleatórios para os parâmetros a e b, distribuídos uniformemente no intervalo [0,10]. Essa etapa garante diversidade inicial no espaço de busca, permitindo que o algoritmo explore diferentes soluções desde as primeiras gerações.
-
----
-## Ordenar
-```
-void Ordenar(Individuo *populacao, Individuo *pais, int m, int quantidade)
-```
-A função Ordenar realiza a seleção dos indivíduos mais aptos para reprodução. A população é ordenada em ordem decrescente de fitness por meio de um algoritmo de ordenação simples. Em seguida, os melhores indivíduos são copiados para o vetor de pais, garantindo que apenas as soluções mais promissoras sejam utilizadas nas próximas etapas do algoritmo.
-
----
-## Gerar Pontos
-```
-void GerarPontos(FILE *file, Ponto *pontos, int n);
-```
-Lê os n pares de coordenadas (x, y) do arquivo de entrada e os armazena no vetor de Ponto. Esses pontos formam o conjunto de dados que o algoritmo tentará aproximar com uma reta.
-
----
-## CalculoErroFitness 
+A cada geração, é registrado o melhor indivíduo encontrado:
 
 ```
-void CalculoErroFitness(Individuo *populacao, Dados *dados, Ponto *pontos);
+Melhor fitness:0.999469 |Erro: 0.000532 |a: 1.989948 |b: 1.046355 |
 ```
-Avalia cada indivíduo da população calculando:
-
-- Erro médio quadrático (MSE): média da soma dos quadrados das diferenças entre o valor real y e o valor previsto ax + b.
-- Fitness: calculado como `1 / (1 + erro)`, de forma que indivíduos com menor erro possuem fitness mais próximo de 1 (melhor).
-
----
-## Crossover
-```
-void Crossover(Individuo *populacao, Individuo *pais, Individuo *filhos, Dados dados, int quantidade);
-```
-Realiza o cruzamento entre pares de pais selecionados aleatoriamente, gerando filhos que combinam os coeficientes, sempre evitando que os pares sejam repetidos e os filhos gerados substituem a pior metade da população atual.:
-- `filho[i].a = paiA.a e filho[i].b = paiB.b`
-
-- `filho[i+1].a = paiB.a e filho[i+1].b = paiA.b`
-
----
-## Mutação
-```
-void Mutacao(Individuo *populacao, int quantidade);
-```
-Aplica mutações aleatórias em indivíduos da população (excluindo o melhor). Para cada indivíduo, com probabilidade de 50%, um delta aleatório no intervalo [-1, 1] é somado a a ou b. Os valores são mantidos dentro do intervalo [0, 10].
-
----
-# Discussão do erro:
-Saida do `output.dat`:
-Primeira Geração:
-`Melhor fitness:0.244386 |Erro: 3.091892 |a: 1.293038 |b: 4.865410 |`
-
-Ultima Geração:
-`Melhor fitness:0.999469 |Erro: 0.000532 |a: 1.989948 |b: 1.046355 |`
-
-Valor estimado para a e b:
-`a = 2.0, b = 1.0`
-
-Com isso concluimos que o algoritmo convergiu com sucesso para uma solução muito próxima da reta real `y = 2x + 1`, atingindo fitness de 0.997 ao final das 500 gerações.
-
----
-## Comportamento por fases:
-Fase 1 — Convergência inicial agressiva (gerações 1–9): Partindo de um ponto inicial ruim (b = 4.87), o erro cai de 3.09 para 0.055 em apenas 9 gerações — redução de 98.2%. A maior diversidade genética do intervalo [-10, 10] permite saltos maiores logo no início.
-
-Fase 2 — Estagnação intermediária (gerações 9–60): O fitness estabiliza em torno de 0.954 por aproximadamente 50 gerações. O algoritmo encontrou uma boa solução local mas perdeu diversidade genética rapidamente.
-
-Fase 3 — Refinamento progressivo (gerações 60–500): Diferentemente da versão anterior com intervalo [0, 10], aqui o refinamento é mais consistente e contínuo, com saltos de melhoria distribuídos ao longo de toda esta fase. O algoritmo conseguiu continuar evoluindo até gerações muito tardias (geração ~480), atingindo erro final de apenas 0.00053 — 5× menor que na versão anterior.
-
----
-## Conclusões
-
-- O intervalo [-10, 10] produziu resultados superiores. Apesar de partir de um ponto inicial mais distante do ótimo (b = 4.87 vs b = 2.50), a versão final terminou com erro 5× menor (0.00053 contra 0.00271) e fitness mais alto (0.9995 contra 0.9973).
-- Maior diversidade inicial sustenta o refinamento por mais gerações. Na versão final, melhorias ocorrem até a geração ~480, enquanto na versão anterior o algoritmo estagnava definitivamente por volta da geração 390. A amplitude maior do espaço de busca mantém variabilidade genética útil por mais tempo.
-- a converge antes de b em ambas as versões. A paisagem de fitness é estruturalmente mais sensível à inclinação (a) do que ao intercepto (b), um comportamento consistente independente do intervalo de inicialização.
-- A solução final é muito próxima do ótimo. a = 1.990 e b = 1.046 representam desvios de apenas 0.5% e 4.6% em relação aos valores ideais a = 2.0 e b = 1.0.
-- A convergência prematura persiste, mas é menos severa. A maior estagnação observada foi de ~90 gerações seguidas sem melhoria (gerações 390–480), depois da qual o algoritmo ainda encontrou um salto final.
-
----
-## Possíveis melhorias
-
-- Mutação adaptativa: reduzir o delta de mutação conforme o fitness aumenta, permitindo ajuste mais fino nas gerações finais onde o erro já é pequeno.
-- Critério de parada antecipada: interromper a execução quando não houver melhoria por N gerações consecutivas, economizando processamento nas longas estagnações.
-- Maior população: aumentar m além de 20 indivíduos para retardar a perda de diversidade genética e reduzir a frequência de estagnações.
-
----
-## Observações
-- A semente aleatória está fixada em srand(42) para garantir reprodutibilidade dos resultados.
-- O Makefile utiliza -gcc como compilador; altere para gcc caso necessário.
-- Os coeficientes a e b são gerados e mantidos no intervalo [-10, 10].
 
 ---
 
-# Como Compilar e Executar
+## Lógica de Evolução
 
-Este projeto utiliza **Makefile** para facilitar a compilação. Para limpar, compilar e executar em sequência, utilize:
-
-```
-make clean && make && make run
-```
-
-Para apenas executar o executável já compilado:
+O algoritmo segue o ciclo evolutivo clássico, repetido por `G` gerações:
 
 ```
-./build/app
+Início
+  │
+  ├─ Leitura dos parâmetros e pontos (input.dat)
+  ├─ Geração da população inicial aleatória
+  │
+  └─ Loop por G gerações:
+        ├─ 1. Avaliação   → CalculoErroFitness (calcula MSE e fitness de todos)
+        ├─ 2. Seleção     → Ordenar (ordena por fitness, copia m/2 melhores como pais)
+        ├─ 3. Crossover   → combina pares de pais, filhos substituem os piores
+        ├─ 4. Mutação     → aplica perturbação delta ∈ [-1,1] em a ou b com prob. 50%
+        ├─ 5. Reavaliação → CalculoErroFitness novamente após as modificações
+        └─ 6. Registro    → salva o melhor indivíduo da geração em output.dat
 ```
+
+### Detalhamento das funções
+
+**`LerInputdatDados`** — lê `n`, `m` e `G` da primeira linha do `input.dat`.
+
+**`GerarPontos`** — lê os `n` pares `(x, y)` do arquivo e armazena no vetor de pontos.
+
+**`GerarPopulacao`** — inicializa `m` indivíduos com valores aleatórios de `a` e `b` no intervalo `[-10, 10]`, controlados pela semente `srand(42)` para reprodutibilidade.
+
+**`CalculoErroFitness`** — para cada indivíduo, calcula o MSE sobre todos os `n` pontos e deriva o fitness via `1 / (1 + MSE)`.
+
+**`Ordenar`** — aplica Selection Sort sobre a população (decrescente por fitness) e copia os `m/2` melhores para o vetor de pais.
+
+**`Crossover`** — sorteia pares únicos de pais e gera dois filhos por par trocando os coeficientes:
+- `filho[i]   = (paiA.a, paiB.b)`
+- `filho[i+1] = (paiB.a, paiA.b)`
+
+Os filhos substituem a segunda metade (os piores) da população.
+
+**`Mutacao`** — percorre os `m/2` indivíduos da segunda metade; com 50% de probabilidade, aplica um delta aleatório `∈ [-1, 1]` em `a` ou `b`, mantendo os valores dentro de `[-10, 10]`.
+
 ---
 
-# Análise de Complexidade das Principais Rotinas
+## Experimentos Realizados
+
+### Configuração
+
+| Parâmetro | Valor |
+|-----------|-------|
+| Pontos (`n`) | 8 |
+| População (`m`) | 20 |
+| Gerações (`G`) | 500 |
+| Semente | `srand(42)` |
+| Intervalo de busca | `[-10, 10]` |
+
+Os pontos de entrada seguem a reta ideal `y = 2x + 1`, permitindo avaliar a precisão da convergência.
+
+### Resultados
+
+| | Fitness | Erro (MSE) | `a` | `b` |
+|---|---|---|---|---|
+| **1ª geração** | 0.244386 | 3.091892 | 1.293038 | 4.865410 |
+| **Última geração** | 0.999469 | 0.000532 | 1.989948 | 1.046355 |
+| **Ótimo real** | 1.000000 | 0.000000 | 2.000000 | 1.000000 |
+
+O algoritmo convergiu para `a = 1.990` e `b = 1.046`, com desvios de apenas **0,5%** e **4,6%** em relação aos valores ideais.
+
+---
+
+## Comportamento do Erro ao Longo das Gerações
+
+A evolução do erro pode ser dividida em três fases distintas:
+
+**Fase 1 — Convergência inicial agressiva (gerações 1–9)**
+
+Partindo de um ponto inicial ruim (MSE = 3,09), o erro cai para 0,055 em apenas 9 gerações — uma redução de **98,2%**. A alta diversidade genética inicial, combinada com o amplo intervalo `[-10, 10]`, permite saltos grandes logo no início.
+
+**Fase 2 — Estagnação intermediária (gerações 9–60)**
+
+O fitness estabiliza em torno de 0,954 por aproximadamente 50 gerações. O algoritmo encontrou uma boa solução local mas perdeu diversidade genética rapidamente nesta fase.
+
+**Fase 3 — Refinamento progressivo (gerações 60–500)**
+
+O refinamento é consistente e contínuo, com melhorias distribuídas ao longo de toda esta fase. O algoritmo continua evoluindo até gerações muito tardias (~480), atingindo erro final de **0,00053**.
+
+### Conclusões
+
+- O intervalo `[-10, 10]` produziu boa diversidade inicial, sustentando o refinamento por mais gerações.
+- O coeficiente `a` converge antes de `b`, indicando que a paisagem de fitness é mais sensível à inclinação da reta do que ao intercepto.
+- A convergência prematura ocorre mas é transitória — o algoritmo retoma melhorias após períodos de estagnação.
+- A solução final (`a = 1.990`, `b = 1.046`) é muito próxima do ótimo teórico (`a = 2.0`, `b = 1.0`).
+
+---
+
+## Análise de Complexidade das Principais Rotinas
 
 As variáveis utilizadas na análise são:
 
 - **n** — número de pontos do dataset
 - **m** — tamanho da população
 - **G** — número de gerações
-- **quantidade** = m/2 — número de pais/filhos selecionados por geração
+- **quantidade** = m/2 — número de pais/filhos por geração
 
 ---
 
-## `LerInputdatDados` — `pontos.c`
+### `LerInputdatDados` — `pontos.c`
 
-Realiza uma única leitura de 3 inteiros do arquivo de entrada (`n`, `m`, `G`).
+Realiza uma única leitura de 3 inteiros do arquivo de entrada.
 
 | | Complexidade |
 |-|---|
@@ -217,7 +274,7 @@ Realiza uma única leitura de 3 inteiros do arquivo de entrada (`n`, `m`, `G`).
 
 ---
 
-## `GerarPontos` — `pontos.c`
+### `GerarPontos` — `pontos.c`
 
 ```c
 for (int i = 0; i < n; i++) {
@@ -225,7 +282,7 @@ for (int i = 0; i < n; i++) {
 }
 ```
 
-Itera uma única vez sobre os `n` pontos, lendo as coordenadas `x` e `y` de cada um.
+Itera uma única vez sobre os `n` pontos.
 
 | | Complexidade |
 |-|---|
@@ -234,7 +291,7 @@ Itera uma única vez sobre os `n` pontos, lendo as coordenadas `x` e `y` de cada
 
 ---
 
-## `GerarPopulacao` — `individuos.c`
+### `GerarPopulacao` — `individuos.c`
 
 ```c
 for (int i = 0; i < m; i++) {
@@ -243,7 +300,7 @@ for (int i = 0; i < m; i++) {
 }
 ```
 
-Itera uma única vez sobre os `m` indivíduos, atribuindo valores aleatórios a `a` e `b` no intervalo `[-10, 10]`.
+Itera uma única vez sobre os `m` indivíduos.
 
 | | Complexidade |
 |-|---|
@@ -252,7 +309,7 @@ Itera uma única vez sobre os `m` indivíduos, atribuindo valores aleatórios a 
 
 ---
 
-## `CalculoErroFitness` — `operacoes.c`
+### `CalculoErroFitness` — `operacoes.c`
 
 ```c
 for (int i = 0; i < m; i++) {           // percorre toda a população
@@ -265,9 +322,9 @@ for (int i = 0; i < m; i++) {           // percorre toda a população
 }
 ```
 
-Para cada um dos `m` indivíduos, calcula o erro quadrático médio em relação a todos os `n` pontos e deriva o valor de fitness.
+Loop duplo aninhado: para cada indivíduo, calcula o MSE sobre todos os pontos.
 
-Esta função é chamada **duas vezes por geração** no loop principal, tornando-a a rotina mais custosa do algoritmo.
+Chamada **duas vezes por geração** — é a rotina mais custosa do algoritmo.
 
 | | Complexidade |
 |-|---|
@@ -276,11 +333,10 @@ Esta função é chamada **duas vezes por geração** no loop principal, tornand
 
 ---
 
-## `Ordenar` — `individuos.c`
+### `Ordenar` — `individuos.c`
 
 ```c
-// Selection Sort sobre a população
-for (int i = 0; i < m; i++) {
+for (int i = 0; i < m; i++) {          // Selection Sort
     int posicaomax = i;
     for (int j = i; j < m; j++) {
         if (populacao[j].fitness > populacao[posicaomax].fitness)
@@ -288,13 +344,12 @@ for (int i = 0; i < m; i++) {
     }
     // troca
 }
-// cópia dos m/2 melhores para o vetor de pais
-for (int i = 0; i < quantidade; i++) {
+for (int i = 0; i < quantidade; i++) { // cópia dos m/2 melhores
     pais[i] = populacao[i];
 }
 ```
 
-Implementa **Selection Sort** sobre os `m` indivíduos (ordenação decrescente por fitness), seguido de uma cópia dos `m/2` melhores para o vetor de pais.
+Implementa **Selection Sort** (O(m²)) seguido de uma cópia dos melhores.
 
 | | Complexidade |
 |-|---|
@@ -303,47 +358,32 @@ Implementa **Selection Sort** sobre os `m` indivíduos (ordenação decrescente 
 
 ---
 
-## `Crossover` — `operacoes.c`
+### `Crossover` — `operacoes.c`
 
-A função é composta por três etapas:
+**1. Seleção de pares únicos** — no pior caso, verifica todos os pares anteriores para cada novo par → O(quantidade²) = **O(m²/4)**
 
-**1. Seleção de pares únicos de pais:**
-```c
-for (int i = 0; i < quantidade; i += 2) {
-    do {
-        // sorteia paiA e paiB
-        for (int j = 0; j < i; j += 2) {
-            // verifica se o par já foi usado
-        }
-    } while (repetido);
-}
-```
-No pior caso, para cada novo par gerado todos os pares anteriores são verificados → O(quantidade²) = **O(m²/4)**
+**2. Geração dos filhos** — troca de `a` e `b` entre cada par → O(m)
 
-**2. Geração dos filhos** — troca de `a` e `b` entre cada par de pais → O(m)
-
-**3. Substituição dos piores** — os filhos substituem a segunda metade da população → O(m)
+**3. Substituição dos piores** — filhos ocupam a segunda metade da população → O(m)
 
 | | Complexidade |
 |-|---|
 | **Tempo** | O(m²) |
 | **Espaço** | O(m) auxiliar |
 
-Para populações grandes, a verificação de pares repetidos pode se tornar um gargalo. Para o tamanho usado no exemplo (`m=20`), o impacto é negligenciável.
-
 ---
 
-## `Mutacao` — `operacoes.c`
+### `Mutacao` — `operacoes.c`
 
 ```c
 for (int i = 1; i < quantidade; i++) {
     if (rand() % 2 == 0) {
-        // altera a ou b com probabilidade 50%
+        // altera a ou b com delta ∈ [-1, 1]
     }
 }
 ```
 
-Percorre os `m/2` indivíduos da segunda metade da população. Com probabilidade 50%, aplica uma perturbação aleatória `delta ∈ [-1, 1]` em `a` ou `b`, respeitando os limites `[-10, 10]`.
+Percorre os `m/2` indivíduos, aplicando perturbação com probabilidade 50%.
 
 | | Complexidade |
 |-|---|
@@ -352,7 +392,7 @@ Percorre os `m/2` indivíduos da segunda metade da população. Com probabilidad
 
 ---
 
-## Loop Principal — `trabalho1.c`
+### Loop Principal — `trabalho1.c`
 
 ```c
 for (int i = 0; i < G; i++) {
@@ -360,13 +400,11 @@ for (int i = 0; i < G; i++) {
     Ordenar(...);              // O(m²)
     Crossover(...);            // O(m²)
     Mutacao(...);              // O(m)
-    CalculoErroFitness(...);   // O(m × n)  ← chamada novamente após crossover/mutação
+    CalculoErroFitness(...);   // O(m × n)
 }
 ```
 
-Por geração, o custo dominante é **O(m² + m×n)**.
-
-Ao longo de todas as `G` gerações:
+**Complexidade total:**
 
 $$T(G, m, n) = O\bigl(G \times (m^2 + m \cdot n)\bigr)$$
 
@@ -377,7 +415,7 @@ $$T(G, m, n) = O\bigl(G \times (m^2 + m \cdot n)\bigr)$$
 
 ---
 
-## Resumo das Complexidades
+### Resumo das Complexidades
 
 | Rotina | Arquivo | Tempo | Espaço |
 |--------|---------|-------|--------|
@@ -392,47 +430,49 @@ $$T(G, m, n) = O\bigl(G \times (m^2 + m \cdot n)\bigr)$$
 
 ---
 
-# Fluxo do Algorítmo
-```
-Início
-  │
-  ├─ Leitura dos parâmetros e pontos (input.dat)
-  │
-  ├─ Geração da população inicial (aleatória)
-  │
-  └─ Loop por G gerações:
-        ├─ Cálculo de Erro e Fitness (CalculoErroFitness)
-        ├─ Seleção dos melhores pais (Ordenar)
-        ├─ Cruzamento → geração de filhos (Crossover)
-        ├─ Mutação nos filhos (Mutacao)
-        ├─ Recálculo de Fitness (CalculoErroFitness)
-        └─ Registro do melhor indivíduo (output.dat)
-```
+## Melhorias Futuras
 
+**Algoritmo de ordenação mais eficiente**
+Substituir o Selection Sort (O(m²)) por Merge Sort ou Quick Sort (O(m log m)) reduziria o custo dominante do loop principal, especialmente para populações grandes.
 
-# Estrutura do Projeto
+**Seleção de pais mais robusta**
+A verificação de pares repetidos no Crossover tem complexidade quadrática. Substituir por **seleção por torneio** ou **roleta (roulette wheel selection)** tornaria a seleção O(m) e mais eficaz para explorar o espaço de busca.
 
-```
-Trabalho1AEDSI/
-├── src/
-│   ├── trabalho1.h       # Definições de structs e protótipos
-│   ├── trabalho1.c       # Função principal (main)
-│   ├── individuos.c      # GerarPopulacao e Ordenar
-│   ├── operacoes.c       # CalculoErroFitness, Crossover e Mutacao
-│   └── pontos.c          # LerInputdatDados e GerarPontos
-├── config/
-│   ├── input.dat         # Parâmetros e pontos de entrada
-│   └── output.dat        # Resultados por geração
-├── build/
-│   └── app               # Executável compilado
-└── Makefile
-```
+**Taxa de mutação adaptativa**
+Reduzir o delta de mutação conforme o fitness aumenta permitiria refinamento mais fino nas gerações finais, quando os erros já são pequenos.
 
-# Ambiente de Teste
+**Elitismo**
+Garantir que o melhor indivíduo de cada geração sempre sobreviva para a próxima, evitando que boas soluções sejam perdidas após crossover ou mutação agressiva.
 
+**Critério de parada antecipada**
+Adicionar um critério de convergência — por exemplo, interromper após `k` gerações sem melhoria — economizaria processamento nos longos períodos de estagnação observados.
 
-# Creditos
-Arquivo Makefile concedido pelo professor Michel Pires.
+**Parâmetros configuráveis via `input.dat`**
+Tornar a taxa de mutação, o delta e o intervalo de busca configuráveis externamente, evitando recompilação para diferentes experimentos.
 
-# Autor
-Gabriel Alves Faria.
+**Controle de diversidade populacional**
+Sem controle de diversidade, a população pode convergir prematuramente para mínimos locais. Técnicas como **niching** ou reinicialização parcial da população ajudariam a explorar melhor o espaço de busca.
+
+**Suporte a outros modelos**
+O projeto está restrito ao ajuste linear `y = ax + b`. Generalizar para polinômios de grau `n` ou funções não-lineares aumentaria significativamente o alcance do algoritmo.
+
+---
+
+## Observações
+
+- A semente aleatória está fixada em `srand(42)` para garantir **reprodutibilidade** dos resultados.
+- Os coeficientes `a` e `b` são gerados e mantidos no intervalo `[-10, 10]`.
+- O Makefile utiliza `gcc` como compilador.
+- Arquivo `Makefile` concedido pelo professor Michel Pires.
+
+---
+## Especificações do ambiente de teste
+Este projeto foi executado utilizando:
+
+- Sistema Operacional: Linux Mint 22.1 Cinnamon
+- Compilador: GCC 13.3.0
+- Hardware: 12th Intel© Core™ i5-1235U × 10 ; 7.5GB RAM; 512.1GB SSD; Intel Corporation Alder Lake-UP3 GT2 [UHD Graphics].
+## Autor
+
+**Gabriel Alves Faria**  
+CEFET-MG — Campus Divinópolis
