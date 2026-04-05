@@ -129,9 +129,255 @@ Ultima Geração:
 Valor estimado para a e b:
 `a = 2.0, b = 1.0`
 
-O algoritmo converge com sucesso para uma solução muito próxima da reta real `y = 2x + 1`, atingindo fitness de 0.997 ao final das 500 gerações.
+Com isso concluimos que o algoritmo convergiu com sucesso para uma solução muito próxima da reta real `y = 2x + 1`, atingindo fitness de 0.997 ao final das 500 gerações.
+
+## Comportamento por fases:
+Fase 1 — Convergência inicial agressiva (gerações 1–9): Partindo de um ponto inicial ruim (b = 4.87), o erro cai de 3.09 para 0.055 em apenas 9 gerações — redução de 98.2%. A maior diversidade genética do intervalo [-10, 10] permite saltos maiores logo no início.
+
+Fase 2 — Estagnação intermediária (gerações 9–60): O fitness estabiliza em torno de 0.954 por aproximadamente 50 gerações. O algoritmo encontrou uma boa solução local mas perdeu diversidade genética rapidamente.
+
+Fase 3 — Refinamento progressivo (gerações 60–500): Diferentemente da versão anterior com intervalo [0, 10], aqui o refinamento é mais consistente e contínuo, com saltos de melhoria distribuídos ao longo de toda esta fase. O algoritmo conseguiu continuar evoluindo até gerações muito tardias (geração ~480), atingindo erro final de apenas 0.00053 — 5× menor que na versão anterior.
+
+## Conclusões
+
+- O intervalo [-10, 10] produziu resultados superiores. Apesar de partir de um ponto inicial mais distante do ótimo (b = 4.87 vs b = 2.50), a versão final terminou com erro 5× menor (0.00053 contra 0.00271) e fitness mais alto (0.9995 contra 0.9973).
+- Maior diversidade inicial sustenta o refinamento por mais gerações. Na versão final, melhorias ocorrem até a geração ~480, enquanto na versão anterior o algoritmo estagnava definitivamente por volta da geração 390. A amplitude maior do espaço de busca mantém variabilidade genética útil por mais tempo.
+- a converge antes de b em ambas as versões. A paisagem de fitness é estruturalmente mais sensível à inclinação (a) do que ao intercepto (b), um comportamento consistente independente do intervalo de inicialização.
+- A solução final é muito próxima do ótimo. a = 1.990 e b = 1.046 representam desvios de apenas 0.5% e 4.6% em relação aos valores ideais a = 2.0 e b = 1.0.
+- A convergência prematura persiste, mas é menos severa. A maior estagnação observada foi de ~90 gerações seguidas sem melhoria (gerações 390–480), depois da qual o algoritmo ainda encontrou um salto final.
+
+## Possíveis melhorias
+
+- Mutação adaptativa: reduzir o delta de mutação conforme o fitness aumenta, permitindo ajuste mais fino nas gerações finais onde o erro já é pequeno.
+- Critério de parada antecipada: interromper a execução quando não houver melhoria por N gerações consecutivas, economizando processamento nas longas estagnações.
+- Maior população: aumentar m além de 20 indivíduos para retardar a perda de diversidade genética e reduzir a frequência de estagnações.
+
+## Observações
+- A semente aleatória está fixada em srand(42) para garantir reprodutibilidade dos resultados.
+- O Makefile utiliza -gcc como compilador; altere para gcc caso necessário.
+- Os coeficientes a e b são gerados e mantidos no intervalo [-10, 10].
 
 
+
+
+
+---
+
+## ⚙️ Como Compilar e Executar
+
+```bash
+make
+./build/app
+```
+
+---
+
+
+
+| Parâmetro | Descrição |
+|-----------|-----------|
+| `n` | Número de pontos |
+| `m` | Tamanho da população |
+| `G` | Número de gerações |
+
+---
+
+# Análise de Complexidade das Principais Rotinas
+
+As variáveis utilizadas na análise são:
+
+- **n** — número de pontos do dataset
+- **m** — tamanho da população
+- **G** — número de gerações
+- **quantidade** = m/2 — número de pais/filhos selecionados por geração
+
+---
+
+### `LerInputdatDados` — `pontos.c`
+
+Realiza uma única leitura de 3 inteiros do arquivo de entrada (`n`, `m`, `G`).
+
+| | Complexidade |
+|-|---|
+| **Tempo** | O(1) |
+| **Espaço** | O(1) |
+
+---
+
+### `GerarPontos` — `pontos.c`
+
+```c
+for (int i = 0; i < n; i++) {
+    fscanf(file, "%f %f", &pontos[i].x, &pontos[i].y);
+}
+```
+
+Itera uma única vez sobre os `n` pontos, lendo as coordenadas `x` e `y` de cada um.
+
+| | Complexidade |
+|-|---|
+| **Tempo** | O(n) |
+| **Espaço** | O(n) |
+
+---
+
+### `GerarPopulacao` — `individuos.c`
+
+```c
+for (int i = 0; i < m; i++) {
+    populacao[i].a = ((float)rand() / RAND_MAX) * 20 - 10;
+    populacao[i].b = ((float)rand() / RAND_MAX) * 20 - 10;
+}
+```
+
+Itera uma única vez sobre os `m` indivíduos, atribuindo valores aleatórios a `a` e `b` no intervalo `[-10, 10]`.
+
+| | Complexidade |
+|-|---|
+| **Tempo** | O(m) |
+| **Espaço** | O(m) |
+
+---
+
+### `CalculoErroFitness` — `operacoes.c`
+
+```c
+for (int i = 0; i < m; i++) {           // percorre toda a população
+    for (int j = 0; j < n; j++) {       // percorre todos os pontos
+        erro = yreal - yprev;
+        somatorio += erro * erro;
+    }
+    populacao[i].erro    = somatorio / n;
+    populacao[i].fitness = 1.0 / (1.0 + populacao[i].erro);
+}
+```
+
+Para cada um dos `m` indivíduos, calcula o erro quadrático médio em relação a todos os `n` pontos e deriva o valor de fitness.
+
+Esta função é chamada **duas vezes por geração** no loop principal, tornando-a a rotina mais custosa do algoritmo.
+
+| | Complexidade |
+|-|---|
+| **Tempo** | O(m × n) |
+| **Espaço** | O(1) auxiliar |
+
+---
+
+### `Ordenar` — `individuos.c`
+
+```c
+// Selection Sort sobre a população
+for (int i = 0; i < m; i++) {
+    int posicaomax = i;
+    for (int j = i; j < m; j++) {
+        if (populacao[j].fitness > populacao[posicaomax].fitness)
+            posicaomax = j;
+    }
+    // troca
+}
+// cópia dos m/2 melhores para o vetor de pais
+for (int i = 0; i < quantidade; i++) {
+    pais[i] = populacao[i];
+}
+```
+
+Implementa **Selection Sort** sobre os `m` indivíduos (ordenação decrescente por fitness), seguido de uma cópia dos `m/2` melhores para o vetor de pais.
+
+| | Complexidade |
+|-|---|
+| **Tempo** | O(m²) |
+| **Espaço** | O(m) auxiliar |
+
+---
+
+### `Crossover` — `operacoes.c`
+
+A função é composta por três etapas:
+
+**1. Seleção de pares únicos de pais:**
+```c
+for (int i = 0; i < quantidade; i += 2) {
+    do {
+        // sorteia paiA e paiB
+        for (int j = 0; j < i; j += 2) {
+            // verifica se o par já foi usado
+        }
+    } while (repetido);
+}
+```
+No pior caso, para cada novo par gerado todos os pares anteriores são verificados → O(quantidade²) = **O(m²/4)**
+
+**2. Geração dos filhos** — troca de `a` e `b` entre cada par de pais → O(m)
+
+**3. Substituição dos piores** — os filhos substituem a segunda metade da população → O(m)
+
+| | Complexidade |
+|-|---|
+| **Tempo** | O(m²) |
+| **Espaço** | O(m) auxiliar |
+
+Para populações grandes, a verificação de pares repetidos pode se tornar um gargalo. Para o tamanho usado no exemplo (`m=20`), o impacto é negligenciável.
+
+---
+
+### `Mutacao` — `operacoes.c`
+
+```c
+for (int i = 1; i < quantidade; i++) {
+    if (rand() % 2 == 0) {
+        // altera a ou b com probabilidade 50%
+    }
+}
+```
+
+Percorre os `m/2` indivíduos da segunda metade da população. Com probabilidade 50%, aplica uma perturbação aleatória `delta ∈ [-1, 1]` em `a` ou `b`, respeitando os limites `[-10, 10]`.
+
+| | Complexidade |
+|-|---|
+| **Tempo** | O(m) |
+| **Espaço** | O(1) |
+
+---
+
+### Loop Principal — `trabalho1.c`
+
+```c
+for (int i = 0; i < G; i++) {
+    CalculoErroFitness(...);   // O(m × n)
+    Ordenar(...);              // O(m²)
+    Crossover(...);            // O(m²)
+    Mutacao(...);              // O(m)
+    CalculoErroFitness(...);   // O(m × n)  ← chamada novamente após crossover/mutação
+}
+```
+
+Por geração, o custo dominante é **O(m² + m×n)**.
+
+Ao longo de todas as `G` gerações:
+
+$$T(G, m, n) = O\bigl(G \times (m^2 + m \cdot n)\bigr)$$
+
+| | Complexidade |
+|-|---|
+| **Tempo total** | **O(G × (m² + m·n))** |
+| **Espaço total** | **O(m + n)** |
+
+---
+
+## 📋 Resumo das Complexidades
+
+| Rotina | Arquivo | Tempo | Espaço |
+|--------|---------|-------|--------|
+| `LerInputdatDados` | `pontos.c` | O(1) | O(1) |
+| `GerarPontos` | `pontos.c` | O(n) | O(n) |
+| `GerarPopulacao` | `individuos.c` | O(m) | O(m) |
+| `CalculoErroFitness` | `operacoes.c` | **O(m × n)** | O(1) |
+| `Ordenar` | `individuos.c` | **O(m²)** | O(m) |
+| `Crossover` | `operacoes.c` | **O(m²)** | O(m) |
+| `Mutacao` | `operacoes.c` | O(m) | O(1) |
+| **Loop Principal** | `trabalho1.c` | **O(G × (m² + m·n))** | **O(m + n)** |
+
+---
 
 # Fluxo do Algorítmo
 ```
@@ -151,21 +397,26 @@ Início
 ```
 
 
-# Estrutura do Projeto
+#Estrutura do Projeto
+
 ```
 Trabalho1AEDSI/
-├── build/
-│   ├── app              # Executável compilado
-│   └── objects/
-├── config/
-│   ├── input.dat        # Arquivo de entrada (parâmetros + pontos)
-│   └── output.dat       # Arquivo de saída gerado após execução
 ├── src/
-│   ├── trabalho1.c      # Função main — fluxo principal do algoritmo
-│   ├── funsoes.c        # Implementação de todas as funções do AG
-│   └── trabalho1.h      # Declarações de structs e protótipos de funções
-└── Makefile             # Script de compilação
+│   ├── trabalho1.h       # Definições de structs e protótipos
+│   ├── trabalho1.c       # Função principal (main)
+│   ├── individuos.c      # GerarPopulacao e Ordenar
+│   ├── operacoes.c       # CalculoErroFitness, Crossover e Mutacao
+│   └── pontos.c          # LerInputdatDados e GerarPontos
+├── config/
+│   ├── input.dat         # Parâmetros e pontos de entrada
+│   └── output.dat        # Resultados por geração
+├── build/
+│   └── app               # Executável compilado
+└── Makefile
 ```
+
+# Ambiente de Teste
+
 
 # Autor
 Gabriel Alves Faria
