@@ -62,7 +62,7 @@ xn yn
 ```
 
 # Estrutura do Projeto
-
+```
 Trabalho1AEDSI/
 ├── build/
 │   ├── app              # Executável compilado
@@ -75,4 +75,4 @@ Trabalho1AEDSI/
 │   ├── funsoes.c        # Implementação de todas as funções do AG
 │   └── trabalho1.h      # Declarações de structs e protótipos de funções
 └── Makefile             # Script de compilação
-
+```
