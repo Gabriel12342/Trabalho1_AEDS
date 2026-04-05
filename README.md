@@ -433,7 +433,6 @@ $$T(G, m, n) = O\bigl(G \times (m^2 + m \cdot n)\bigr)$$
 ---
 ## Conclusão:
 
-Conclusão
 O Algoritmo Genético implementado demonstrou ser eficaz para o problema de ajuste de uma função linear `y = ax + b` a um conjunto de pontos. Com apenas 500 gerações e uma população de 20 indivíduos, foi possível convergir para uma solução muito próxima do valor estipulado — atingindo `a = 1.990` e `b = 1.046` frente aos valores ideais `a = 2.0` e `b = 1.0`, com erros relativos de 0,5% e 4,6% respectivamente e um MSE final de apenas 0,00053.
 O processo evolutivo evidenciou um comportamento em três fases: uma convergência inicial agressiva nas primeiras gerações, seguida de um período de estagnação intermediária, e por fim um refinamento progressivo e contínuo que se estendeu até as gerações finais. Esse padrão reforça a importância de um espaço de busca amplo (`[-10, 10]`) para manter diversidade genética e evitar que o algoritmo fique preso em mínimos locais por tempo prolongado.
 Do ponto de vista algorítmico, o projeto permitiu observar na prática os conceitos de análise assintótica discutidos na disciplina. O custo total do algoritmo é dominado pelas operações de ordenação e crossover — ambas O(m²) por geração — e pelo cálculo de fitness — O(m×n), chamado duas vezes por geração — resultando em uma complexidade geral de O(G × (m² + m·n)). Para os parâmetros utilizados no experimento, esse custo se mostrou plenamente viável.
@@ -447,7 +446,7 @@ Este projeto foi executado utilizando:
 - Compilador: GCC 13.3.0
 - Hardware: 12th Intel© Core™ i5-1235U × 10 ; 7.5GB RAM; 512.1GB SSD; Intel Corporation Alder Lake-UP3 GT2 [UHD Graphics].
 
-##Creditos
+## Creditos
 
 Arquivo Makefile concedido pelo professor [Michel Pires](https://github.com/mpiress)
 
