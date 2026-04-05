@@ -160,25 +160,6 @@ Melhor fitness:0.999469 |Erro: 0.000532 |a: 1.989948 |b: 1.046355 |
 
 ## Lógica do Algoritmo:
 
-O algoritmo segue o ciclo evolutivo clássico, repetido por `G` gerações:
-
-```
-Início
-  │
-  ├─ Leitura dos parâmetros e pontos (input.dat)
-  ├─ Geração da população inicial aleatória
-  │
-  └─ Loop por G gerações:
-        ├─ 1. Avaliação   → CalculoErroFitness (calcula MSE e fitness de todos)
-        ├─ 2. Seleção     → Ordenar (ordena por fitness, copia m/2 melhores como pais)
-        ├─ 3. Crossover   → combina pares de pais, filhos substituem os piores
-        ├─ 4. Mutação     → aplica perturbação delta ∈ [-1,1] em a ou b com prob. 50%
-        ├─ 5. Reavaliação → CalculoErroFitness novamente após as modificações
-        └─ 6. Registro    → salva o melhor indivíduo da geração em output.dat
-```
-
-### Metodologia
-
 O projeto possui um arquivo cabeçalho `(trabalho1.h)` onde são definidas as estruturas principais: Individuo, que armazena os parâmetros a, b, o erro e o fitness de cada solução candidata; Ponto, que representa um par de coordenadas `(x, y)` do conjunto amostral; e Dados, que agrupa os parâmetros de configuração do experimento — número de pontos `(n)`, tamanho da população `(m)` e número de gerações `(G)`.
 
 O algoritmo lê as informações do arquivo de entrada input.dat via fscanf, coletando `n`, `m` e `G` na primeira linha e armazenando-os na struct Dados. Em seguida, lê os n pares `(x, y)` e os armazena no vetor de pontos alocado dinamicamente.
@@ -197,22 +178,23 @@ Na mutação, o algoritmo percorre os `m/2` indivíduos da primeira metade da po
 
 Por fim, a função `CalculoErroFitness` é chamada novamente para atualizar os valores de erro e fitness após as operações genéticas. Esse ciclo se repete por `G` gerações, registrando o melhor indivíduo de cada geração no arquivo `output.dat`. 
 
-### Fluxo do Algorítmo
+O algoritmo segue o ciclo evolutivo clássico, repetido por `G` gerações:
+
 ```
 Início
   │
   ├─ Leitura dos parâmetros e pontos (input.dat)
-  │
-  ├─ Geração da população inicial (aleatória)
+  ├─ Geração da população inicial aleatória
   │
   └─ Loop por G gerações:
-        ├─ Cálculo de Erro e Fitness (CalculoErroFitness)
-        ├─ Seleção dos melhores pais (Ordenar)
-        ├─ Cruzamento → geração de filhos (Crossover)
-        ├─ Mutação nos filhos (Mutacao)
-        ├─ Recálculo de Fitness (CalculoErroFitness)
-        └─ Registro do melhor indivíduo (output.dat)
+        ├─ 1. Avaliação   → CalculoErroFitness (calcula MSE e fitness de todos)
+        ├─ 2. Seleção     → Ordenar (ordena por fitness, copia m/2 melhores como pais)
+        ├─ 3. Crossover   → combina pares de pais, filhos substituem os piores
+        ├─ 4. Mutação     → aplica perturbação delta ∈ [-1,1] em a ou b com prob. 50%
+        ├─ 5. Reavaliação → CalculoErroFitness novamente após as modificações
+        └─ 6. Registro    → salva o melhor indivíduo da geração em output.dat
 ```
+
 ---
 
 ## Experimentos Realizados
