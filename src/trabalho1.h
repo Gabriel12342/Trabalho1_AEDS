@@ -19,6 +19,6 @@ void GerarPopulacao(Individuo *populacao, int m);
 void GerarPontos(FILE *file, Ponto *pontos, int n);
 void CalculoErroFitness(Individuo *populacao, Dados *dados, Ponto *pontos);
 void Ordenar(Individuo *populacao, Individuo *pais, int m, int quantidade);
-void Crossover(Individuo *populacao, Individuo *pais, Individuo *filhos, Dados dados, int quantidade);
+void Crossover(Individuo *populacao, Individuo *pais, Individuo *filhos, int quantidade);
 void Mutacao(Individuo *populacao, int quantidade);
 #endif

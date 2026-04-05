@@ -30,12 +30,12 @@ void CalculoErroFitness(Individuo *populacao, Dados *dados, Ponto *pontos)
 }
 
 //---------------------------------------------------------------------------------------------------------------
-void Crossover(Individuo *populacao, Individuo *pais, Individuo *filhos, Dados dados, int quantidade)
+void Crossover(Individuo *populacao, Individuo *pais, Individuo *filhos, int quantidade)
 {
 
-    int par_pais[dados.m];
+    int par_pais[(quantidade/2) * 2];
 
-    for (int i = 0; i < quantidade; i += 2)
+    for (int i = 0; i < (quantidade/2); i ++)
     {
 
         int paiA, paiB, repetido;
@@ -47,18 +47,16 @@ void Crossover(Individuo *populacao, Individuo *pais, Individuo *filhos, Dados d
 
             paiA = rand() % quantidade;
 
-            paiB = rand() % quantidade;
-
-           
-            do{
+            do
+            {
 
                 paiB = rand() % quantidade;
             } while (paiA == paiB);
 
-            for (int j = 0; j < i; j += 2)
+            for (int j = 0; j < i; j ++)
             {
 
-                if ((par_pais[j] == paiA && par_pais[j + 1] == paiB) || (par_pais[j] == paiB && par_pais[j + 1] == paiA))
+                if ((par_pais[j*2] == paiA && par_pais[(j*2) + 1] == paiB) || (par_pais[j*2] == paiB && par_pais[(j*2) + 1] == paiA))
                 {
 
                     repetido = 1;
@@ -68,39 +66,46 @@ void Crossover(Individuo *populacao, Individuo *pais, Individuo *filhos, Dados d
 
         } while (repetido);
 
-        par_pais[i] = paiA;
-        par_pais[i + 1] = paiB;
+        par_pais[i*2] = paiA;
+        par_pais[(i*2) + 1] = paiB;
     }
 
-    int c = 0;
+    
 
-    for (int i = 0; i < quantidade; i += 2)
+   int j = 0;
+
+    for (int i = 0; i < quantidade/2; i ++)
     {
+        int pai1 = par_pais[j];
+        int pai2 = par_pais[j+1];
 
-        filhos[i].a = pais[par_pais[c]].a;
-        filhos[i].b = pais[par_pais[c + 1]].b;
+        filhos[i].a = pais[pai1].a;
+        filhos[i].b = pais[pai2].b;
 
-        filhos[i + 1].a = pais[par_pais[c + 1]].a;
-        filhos[i + 1].b = pais[par_pais[c]].b;
+        filhos[i+1].a = pais[pai2].a;
+        filhos[i+1].b = pais[pai1].b;
 
-        c += 2;
+        j += 2;
     }
+
 
     // substituir os piores
     for (int i = 0; i < quantidade; i++)
     {
         populacao[quantidade + i] = filhos[i];
     }
-
 }
 
 //---------------------------------------------------------------------------------------------------------------
 
-void Mutacao(Individuo *populacao, int quantidade){
+void Mutacao(Individuo *populacao, int quantidade)
+{
 
-    for (int i = 1; i < quantidade; i++){
+    for (int i = 1; i < quantidade; i++)
+    {
 
-        if(rand() % 2 == 0){
+        if (rand() % 2 == 0)
+        {
 
             float temp = 0;
 

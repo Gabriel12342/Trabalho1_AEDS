@@ -55,7 +55,7 @@ int main(){
 
         Ordenar(populacao, pais, dados.m, quantidade);
 
-        Crossover(populacao, pais, filhos, dados, quantidade);
+        Crossover(populacao, pais, filhos, quantidade);
 
         Mutacao(populacao, quantidade);
 
