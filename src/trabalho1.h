@@ -18,8 +18,7 @@ void LerInputdatDados(FILE *file, Dados *dados);
 void GerarPopulacao(Individuo *populacao, int m);
 void GerarPontos(FILE *file, Ponto *pontos, int n);
 void CalculoErroFitness(Individuo *populacao, Dados *dados, Ponto *pontos);
-void SelecionarPais(Individuo *populacao, Individuo *pais, int m, int quantidade);
-void Crossover(Individuo *populacao, Individuo *pais, Individuo *filhos, int m, int nCross);
-void Mutacao(Individuo *individuos, int nMuta);
-void CrossOrMuta(Individuo *populacao, Individuo *pais, Individuo *filhos, int quantidade, int m);
+void Ordenar(Individuo *populacao, Individuo *pais, int m, int quantidade);
+void Crossover(Individuo *populacao, Individuo *pais, Individuo *filhos, Dados dados, int quantidade);
+void Mutacao(Individuo *populacao, int quantidade);
 #endif

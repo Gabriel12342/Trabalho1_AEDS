@@ -8,6 +8,7 @@ int main(){
     FILE *file, *saida;
 
     file = fopen("config/input.dat","r");
+
     if (file == NULL){
         printf("Erro ao abrir arquivo input.dat .\n");
         return(1); 
@@ -18,6 +19,7 @@ int main(){
     Ponto *pontos;
 
     LerInputdatDados(file, &dados);
+
 /*#############################################################################################################################*/
 
     int quantidade = dados.m / 2;
@@ -38,7 +40,9 @@ int main(){
     GerarPopulacao(populacao, dados.m);
 
     fclose(file);
+
 /*#############################################################################################################################*/
+
     saida = fopen("config/output.dat", "w");
     if (saida == NULL){
         printf("Erro ao abrir arquivo output.dat.\n");
@@ -46,22 +50,21 @@ int main(){
     }
 
     for (int i = 0; i < dados.G; i++){
+
         CalculoErroFitness(populacao, &dados, pontos);
 
-        SelecionarPais(populacao, pais, dados.m, quantidade);
+        Ordenar(populacao, pais, dados.m, quantidade);
 
-        CrossOrMuta(populacao, pais, filhos, quantidade, dados.m);
-            
+        Crossover(populacao, pais, filhos, dados, quantidade);
+
+        Mutacao(populacao, quantidade);
+
         CalculoErroFitness(populacao, &dados, pontos);
-            //Salva o maior
-        int melhor = 0;
-        for (int j = 1; j < dados.m; j++){
-            if (populacao[j].fitness > populacao[melhor].fitness){
-                melhor = j;
-            }
-        }
 
-        fprintf(saida, "Melhor fitness:%.3f |Erro: %.3f |a: %.3f |b: %.3f |\n", populacao[melhor].fitness, populacao[melhor].erro, populacao[melhor].a, populacao[melhor].b);
+        //Salva o maior
+        Individuo melhor = populacao[0];
+
+        fprintf(saida, "Melhor fitness:%f |Erro: %f |a: %f |b: %f |\n", melhor.fitness, melhor.erro, melhor.a, melhor.b);
 
     }
 
