@@ -61,3 +61,18 @@ xn yn
 8 17
 ```
 
+# Estrutura do Projeto
+
+Trabalho1AEDSI/
+├── build/
+│   ├── app              # Executável compilado
+│   └── objects/
+├── config/
+│   ├── input.dat        # Arquivo de entrada (parâmetros + pontos)
+│   └── output.dat       # Arquivo de saída gerado após execução
+├── src/
+│   ├── trabalho1.c      # Função main — fluxo principal do algoritmo
+│   ├── funsoes.c        # Implementação de todas as funções do AG
+│   └── trabalho1.h      # Declarações de structs e protótipos de funções
+└── Makefile             # Script de compilação
+
