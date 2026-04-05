@@ -12,7 +12,7 @@
 Este projeto implementa um **Algoritmo Genético (AG)** em linguagem C com o objetivo de encontrar os coeficientes `a` e `b` de uma reta de regressão linear da forma:
 
 ```
-ŷ = ax + b
+y = ax + b
 ```
 
 O AG evolui uma população de indivíduos ao longo de várias gerações, minimizando o **Erro Quadrático Médio (MSE)** entre os valores reais e os valores previstos pela reta. Cada indivíduo representa uma solução candidata, codificada como um par de parâmetros `(a, b)`.
@@ -100,17 +100,15 @@ A população é gerenciada como um **vetor dinâmico de `m` indivíduos** (`Ind
 
 ## Como Compilar e Executar
 
-> Requer ambiente **Linux** (Ubuntu ou Zorin recomendados) com `gcc` e `make`.
-
 Para limpar, compilar e executar em sequência:
 
-```bash
+```
 make clean && make && make run
 ```
 
 Para apenas executar o binário já compilado:
 
-```bash
+```
 ./build/app
 ```
 
@@ -160,7 +158,7 @@ Melhor fitness:0.999469 |Erro: 0.000532 |a: 1.989948 |b: 1.046355 |
 
 ---
 
-## Lógica de Evolução
+## Lógica do Algoritmo:
 
 O algoritmo segue o ciclo evolutivo clássico, repetido por `G` gerações:
 
@@ -179,26 +177,42 @@ Início
         └─ 6. Registro    → salva o melhor indivíduo da geração em output.dat
 ```
 
-### Detalhamento das funções
+### Metodologia
 
-**`LerInputdatDados`** — lê `n`, `m` e `G` da primeira linha do `input.dat`.
+O projeto possui um arquivo cabeçalho `(trabalho1.h)` onde são definidas as estruturas principais: Individuo, que armazena os parâmetros a, b, o erro e o fitness de cada solução candidata; Ponto, que representa um par de coordenadas `(x, y)` do conjunto amostral; e Dados, que agrupa os parâmetros de configuração do experimento — número de pontos `(n)`, tamanho da população `(m)` e número de gerações `(G)`.
 
-**`GerarPontos`** — lê os `n` pares `(x, y)` do arquivo e armazena no vetor de pontos.
+O algoritmo lê as informações do arquivo de entrada input.dat via fscanf, coletando `n`, `m` e `G` na primeira linha e armazenando-os na struct Dados. Em seguida, lê os n pares `(x, y)` e os armazena no vetor de pontos alocado dinamicamente.
 
-**`GerarPopulacao`** — inicializa `m` indivíduos com valores aleatórios de `a` e `b` no intervalo `[-10, 10]`, controlados pela semente `srand(42)` para reprodutibilidade.
+A população inicial é gerada com m indivíduos, cada um recebendo valores aleatórios para `a` e `b` no intervalo [-10, 10]. A semente `srand(42)` garante a reprodutibilidade dos resultados entre execuções.
 
-**`CalculoErroFitness`** — para cada indivíduo, calcula o MSE sobre todos os `n` pontos e deriva o fitness via `1 / (1 + MSE)`.
+A cada geração, o ciclo evolutivo ocorre da seguinte forma: primeiro, é calculado o MSE de cada indivíduo em relação a todos os n pontos, e o fitness é derivado pela fórmula `1 / (1 + MSE)`. Em seguida, a população é ordenada de forma decrescente por fitness via Selection Sort, e os `m/2` melhores indivíduos são copiados para o vetor de pais.
+No crossover, pares únicos de pais são sorteados aleatoriamente e dois filhos são gerados por par com a troca dos coeficientes:
 
-**`Ordenar`** — aplica Selection Sort sobre a população (decrescente por fitness) e copia os `m/2` melhores para o vetor de pais.
+`filho[i]   = (paiA.a, paiB.b)`
+`filho[i+1] = (paiB.a, paiA.b)`
 
-**`Crossover`** — sorteia pares únicos de pais e gera dois filhos por par trocando os coeficientes:
-- `filho[i]   = (paiA.a, paiB.b)`
-- `filho[i+1] = (paiB.a, paiA.b)`
+Os filhos gerados substituem a segunda metade da população, ou seja, os `m/2` indivíduos de menor fitness.
 
-Os filhos substituem a segunda metade (os piores) da população.
+Na mutação, o algoritmo percorre os `m/2` indivíduos da primeira metade da população — com exceção do melhor `(populacao[0])`, que é preservado para a próxima geração sem nenhuma alteração (Elitismo). Para cada indivíduo, com probabilidade de 50%, um delta aleatório `∈` [-1, 1] é somado a a ou b, mantendo os valores dentro dos limites [-10, 10].
 
-**`Mutacao`** — percorre os `m/2` indivíduos da segunda metade; com 50% de probabilidade, aplica um delta aleatório `∈ [-1, 1]` em `a` ou `b`, mantendo os valores dentro de `[-10, 10]`.
+Por fim, a função `CalculoErroFitness` é chamada novamente para atualizar os valores de erro e fitness após as operações genéticas. Esse ciclo se repete por `G` gerações, registrando o melhor indivíduo de cada geração no arquivo `output.dat`. 
 
+### Fluxo do Algorítmo
+```
+Início
+  │
+  ├─ Leitura dos parâmetros e pontos (input.dat)
+  │
+  ├─ Geração da população inicial (aleatória)
+  │
+  └─ Loop por G gerações:
+        ├─ Cálculo de Erro e Fitness (CalculoErroFitness)
+        ├─ Seleção dos melhores pais (Ordenar)
+        ├─ Cruzamento → geração de filhos (Crossover)
+        ├─ Mutação nos filhos (Mutacao)
+        ├─ Recálculo de Fitness (CalculoErroFitness)
+        └─ Registro do melhor indivíduo (output.dat)
+```
 ---
 
 ## Experimentos Realizados
@@ -430,41 +444,6 @@ $$T(G, m, n) = O\bigl(G \times (m^2 + m \cdot n)\bigr)$$
 
 ---
 
-## Melhorias Futuras
-
-**Algoritmo de ordenação mais eficiente**
-Substituir o Selection Sort (O(m²)) por Merge Sort ou Quick Sort (O(m log m)) reduziria o custo dominante do loop principal, especialmente para populações grandes.
-
-**Seleção de pais mais robusta**
-A verificação de pares repetidos no Crossover tem complexidade quadrática. Substituir por **seleção por torneio** ou **roleta (roulette wheel selection)** tornaria a seleção O(m) e mais eficaz para explorar o espaço de busca.
-
-**Taxa de mutação adaptativa**
-Reduzir o delta de mutação conforme o fitness aumenta permitiria refinamento mais fino nas gerações finais, quando os erros já são pequenos.
-
-**Elitismo**
-Garantir que o melhor indivíduo de cada geração sempre sobreviva para a próxima, evitando que boas soluções sejam perdidas após crossover ou mutação agressiva.
-
-**Critério de parada antecipada**
-Adicionar um critério de convergência — por exemplo, interromper após `k` gerações sem melhoria — economizaria processamento nos longos períodos de estagnação observados.
-
-**Parâmetros configuráveis via `input.dat`**
-Tornar a taxa de mutação, o delta e o intervalo de busca configuráveis externamente, evitando recompilação para diferentes experimentos.
-
-**Controle de diversidade populacional**
-Sem controle de diversidade, a população pode convergir prematuramente para mínimos locais. Técnicas como **niching** ou reinicialização parcial da população ajudariam a explorar melhor o espaço de busca.
-
-**Suporte a outros modelos**
-O projeto está restrito ao ajuste linear `y = ax + b`. Generalizar para polinômios de grau `n` ou funções não-lineares aumentaria significativamente o alcance do algoritmo.
-
----
-
-## Observações
-
-- A semente aleatória está fixada em `srand(42)` para garantir **reprodutibilidade** dos resultados.
-- Os coeficientes `a` e `b` são gerados e mantidos no intervalo `[-10, 10]`.
-- O Makefile utiliza `gcc` como compilador.
-- Arquivo `Makefile` concedido pelo professor Michel Pires.
-
 ---
 ## Especificações do ambiente de teste
 Este projeto foi executado utilizando:
@@ -472,6 +451,11 @@ Este projeto foi executado utilizando:
 - Sistema Operacional: Linux Mint 22.1 Cinnamon
 - Compilador: GCC 13.3.0
 - Hardware: 12th Intel© Core™ i5-1235U × 10 ; 7.5GB RAM; 512.1GB SSD; Intel Corporation Alder Lake-UP3 GT2 [UHD Graphics].
+
+##Creditos
+
+Arquivo Makefile concedido pelo professor [Michel Pires](https://github.com/mpiress)
+
 ## Autor
 
 **Gabriel Alves Faria**  
