@@ -177,7 +177,7 @@ Fase 3 — Refinamento progressivo (gerações 60–500): Diferentemente da vers
 - A semente aleatória está fixada em srand(42) para garantir reprodutibilidade dos resultados.
 - O Makefile utiliza -gcc como compilador; altere para gcc caso necessário.
 - Os coeficientes a e b são gerados e mantidos no intervalo [-10, 10].
-- 
+
 ---
 
 # Como Compilar e Executar
@@ -429,6 +429,7 @@ Trabalho1AEDSI/
 ```
 
 # Ambiente de Teste
+
 
 # Creditos
 Arquivo Makefile concedido pelo professor Michel Pires.
