@@ -352,7 +352,7 @@ Implementa **Selection Sort** (O(m²)) seguido de uma cópia dos melhores.
 | | Complexidade |
 |-|---|
 | **Tempo** | O(m²) |
-| **Espaço** | O(m) auxiliar |
+| **Espaço** | O(1) auxiliar |
 
 ---
 
@@ -421,7 +421,7 @@ $$T(G, m, n) = O\bigl(G \times (m^2 + m \cdot n)\bigr)$$
 | `GerarPontos` | `pontos.c` | O(n) | O(n) |
 | `GerarPopulacao` | `individuos.c` | O(m) | O(m) |
 | `CalculoErroFitness` | `operacoes.c` | **O(m × n)** | O(1) |
-| `Ordenar` | `individuos.c` | **O(m²)** | O(m) |
+| `Ordenar` | `individuos.c` | **O(m²)** | O(1) |
 | `Crossover` | `operacoes.c` | **O(m²)** | O(m) |
 | `Mutacao` | `operacoes.c` | O(m) | O(1) |
 | **Loop Principal** | `trabalho1.c` | **O(G × (m² + m·n))** | **O(m + n)** |
