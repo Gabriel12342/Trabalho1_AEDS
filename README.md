@@ -94,7 +94,7 @@ typedef struct {
 } Dados;
 ```
 
-A população é gerenciada como um **vetor dinâmico de `m` indivíduos** (`Individuo *populacao`), alocado via `malloc`. Vetores auxiliares de pais e filhos com tamanho `m/2` são utilizados para as operações de crossover.
+A população é gerenciada como um **vetor dinâmico de `m` indivíduos** (`Individuo *populacao`), alocado via `malloc`. Vetores auxiliares de pais (`m/2`) e filhos (`m/2`) são utilizados para as operações de crossover.
 
 ---
 
@@ -102,15 +102,17 @@ A população é gerenciada como um **vetor dinâmico de `m` indivíduos** (`Ind
 
 Para limpar, compilar e executar em sequência:
 
-```
+```bash
 make clean && make && make run
 ```
 
 Para apenas executar o binário já compilado:
 
-```
+```bash
 ./build/app
 ```
+
+O Makefile utiliza `gcc` com flags `-Wall -Wextra -g` e linka com `-lm`.
 
 ---
 
@@ -153,32 +155,35 @@ xn yn
 A cada geração, é registrado o melhor indivíduo encontrado:
 
 ```
-Melhor fitness:0.999469 |Erro: 0.000532 |a: 1.989948 |b: 1.046355 |
+Melhor fitness:0.996697 |Erro: 0.003314 |a: 1.974881 |b: 1.114194 |
 ```
 
 ---
 
-## Lógica do Algoritmo:
+## Lógica do Algoritmo
 
-O projeto possui um arquivo cabeçalho `(trabalho1.h)` onde são definidas as estruturas principais: Individuo, que armazena os parâmetros a, b, o erro e o fitness de cada solução candidata; Ponto, que representa um par de coordenadas `(x, y)` do conjunto amostral; e Dados, que agrupa os parâmetros de configuração do experimento — número de pontos `(n)`, tamanho da população `(m)` e número de gerações `(G)`.
+O projeto possui um arquivo cabeçalho `trabalho1.h` onde são definidas as estruturas principais: `Individuo`, que armazena os parâmetros `a`, `b`, o erro e o fitness de cada solução candidata; `Ponto`, que representa um par de coordenadas `(x, y)` do conjunto amostral; e `Dados`, que agrupa os parâmetros de configuração — número de pontos `(n)`, tamanho da população `(m)` e número de gerações `(G)`.
 
-O algoritmo lê as informações do arquivo de entrada input.dat via fscanf, coletando `n`, `m` e `G` na primeira linha e armazenando-os na struct Dados. Em seguida, lê os n pares `(x, y)` e os armazena no vetor de pontos alocado dinamicamente.
+O algoritmo lê as informações do arquivo de entrada `input.dat` via `fscanf`, coletando `n`, `m` e `G` na primeira linha e armazenando-os na struct `Dados`. Em seguida, lê os `n` pares `(x, y)` e os armazena no vetor de pontos alocado dinamicamente.
 
-A população inicial é gerada com m indivíduos, cada um recebendo valores aleatórios para `a` e `b` no intervalo [-10, 10]. A semente `srand(42)` garante a reprodutibilidade dos resultados entre execuções.
+A população inicial é gerada com `m` indivíduos, cada um recebendo valores aleatórios para `a` e `b` no intervalo `[-10, 10]`. A semente `srand(42)` garante a reprodutibilidade dos resultados entre execuções.
 
-A cada geração, o ciclo evolutivo ocorre da seguinte forma: primeiro, é calculado o MSE de cada indivíduo em relação a todos os n pontos, e o fitness é derivado pela fórmula `1 / (1 + MSE)`. Em seguida, a população é ordenada de forma decrescente por fitness via Selection Sort, e os `m/2` melhores indivíduos são copiados para o vetor de pais.
-No crossover, pares únicos de pais são sorteados aleatoriamente e dois filhos são gerados por par com a troca dos coeficientes:
+A cada geração, o ciclo evolutivo ocorre da seguinte forma: primeiro, é calculado o MSE de cada indivíduo em relação a todos os `n` pontos, e o fitness é derivado pela fórmula `1 / (1 + MSE)`. Em seguida, a população é ordenada de forma decrescente por fitness via **Selection Sort**, e os `m/2` melhores indivíduos são copiados para o vetor de pais.
 
-`filho[i]   = (paiA.a, paiB.b)`
-`filho[i+1] = (paiB.a, paiA.b)`
+No **crossover**, `m/4` pares únicos de pais são sorteados aleatoriamente e dois filhos são gerados por par com a troca dos coeficientes:
 
-Os filhos gerados substituem a segunda metade da população, ou seja, os `m/2` indivíduos de menor fitness.
+```
+filho[i]   = (paiA.a, paiB.b)
+filho[i+1] = (paiB.a, paiA.b)
+```
 
-Na mutação, o algoritmo percorre os `m/2` indivíduos da primeira metade da população — com exceção do melhor `(populacao[0])`, que é preservado para a próxima geração sem nenhuma alteração (Elitismo). Para cada indivíduo, com probabilidade de 50%, um delta aleatório `∈ [-1, 1]` é somado a a ou b, mantendo os valores dentro dos limites [`-10, 10`].
+Os `m/2` filhos gerados substituem a segunda metade da população (os indivíduos de menor fitness).
 
-Por fim, a função `CalculoErroFitness` é chamada novamente para atualizar os valores de erro e fitness após as operações genéticas. Esse ciclo se repete por `G` gerações, registrando o melhor indivíduo de cada geração no arquivo `output.dat`. 
+Na **mutação**, o algoritmo percorre os `m/2` indivíduos da primeira metade da população — com exceção do melhor (`populacao[0]`), que é preservado sem alteração (elitismo). Para cada indivíduo, com probabilidade de 50%, um delta aleatório `∈ [-1, 1]` é somado a `a` ou `b`, mantendo os valores dentro dos limites `[-10, 10]`.
 
-O algoritmo segue o ciclo evolutivo clássico, repetido por `G` gerações:
+Por fim, `CalculoErroFitness` é chamada novamente para atualizar os valores de erro e fitness após as operações genéticas. Esse ciclo se repete por `G` gerações, registrando o melhor indivíduo de cada geração no arquivo `output.dat`.
+
+O algoritmo segue o ciclo evolutivo clássico:
 
 ```
 Início
@@ -189,7 +194,7 @@ Início
   └─ Loop por G gerações:
         ├─ 1. Avaliação   → CalculoErroFitness (calcula MSE e fitness de todos)
         ├─ 2. Seleção     → Ordenar (ordena por fitness, copia m/2 melhores como pais)
-        ├─ 3. Crossover   → combina pares de pais, filhos substituem os piores
+        ├─ 3. Crossover   → m/4 pares de pais geram m/2 filhos, substituem os piores
         ├─ 4. Mutação     → aplica perturbação delta ∈ [-1,1] em a ou b com prob. 50%
         ├─ 5. Reavaliação → CalculoErroFitness novamente após as modificações
         └─ 6. Registro    → salva o melhor indivíduo da geração em output.dat
@@ -216,10 +221,10 @@ Os pontos de entrada seguem a reta ideal `y = 2x + 1`, permitindo avaliar a prec
 | | Fitness | Erro (MSE) | `a` | `b` |
 |---|---|---|---|---|
 | **1ª geração** | 0.244386 | 3.091892 | 1.293038 | 4.865410 |
-| **Última geração** | 0.999469 | 0.000532 | 1.989948 | 1.046355 |
+| **Última geração** | 0.996697 | 0.003314 | 1.974881 | 1.114194 |
 | **Ótimo real** | 1.000000 | 0.000000 | 2.000000 | 1.000000 |
 
-O algoritmo convergiu para `a = 1.990` e `b = 1.046`, com desvios de apenas **0,5%** e **4,6%** em relação aos valores ideais.
+O algoritmo convergiu para `a = 1.975` e `b = 1.114`, com desvios de apenas **1,3%** e **11,4%** em relação aos valores ideais.
 
 ---
 
@@ -227,24 +232,23 @@ O algoritmo convergiu para `a = 1.990` e `b = 1.046`, com desvios de apenas **0,
 
 A evolução do erro pode ser dividida em três fases distintas:
 
-**Fase 1 — Convergência inicial agressiva (gerações 1–9)**
+**Fase 1 — Convergência inicial rápida (gerações 1–50)**
 
-Partindo de um ponto inicial ruim (`MSE = 3,09`), o erro cai para 0,055 em apenas 9 gerações — uma redução de **98,2%**. A alta diversidade genética inicial, combinada com o amplo intervalo `[-10, 10]`, permite saltos grandes logo no início.
+Partindo de um ponto inicial ruim (`MSE = 3.09`), o erro cai para aproximadamente `0.17` nas primeiras 50 gerações — uma redução de **94,5%**. A alta diversidade genética inicial, combinada com o amplo intervalo `[-10, 10]`, permite saltos grandes logo no início.
 
-**Fase 2 — Estagnação intermediária (gerações 9–60)**
+**Fase 2 — Refinamento progressivo (gerações 50–200)**
 
-O fitness estabiliza em torno de 0,954 por aproximadamente 50 gerações. O algoritmo encontrou uma boa solução local mas perdeu diversidade genética rapidamente nesta fase.
+O algoritmo continua melhorando consistentemente, com o fitness passando de ~0.86 para ~0.99. Os ajustes se tornam mais finos, com `a` e `b` convergindo progressivamente para os valores ideais.
 
-**Fase 3 — Refinamento progressivo (gerações 60–500)**
+**Fase 3 — Estagnação final (gerações 200–500)**
 
-O refinamento é consistente e contínuo, com melhorias distribuídas ao longo de toda esta fase. O algoritmo continua evoluindo até gerações muito tardias (`~480`), atingindo erro final de **0,00053**.
+O refinamento desacelera, com longos períodos mantendo o mesmo melhor indivíduo. O algoritmo tende a estagnar próximo do ótimo local encontrado, atingindo erro final de **0.003314**.
 
 ### Conclusões
 
-- O intervalo `[-10, 10]` produziu boa diversidade inicial, sustentando o refinamento por mais gerações.
+- A população de `m = 20` foi suficiente para sustentar diversidade e refinamento por várias centenas de gerações.
 - O coeficiente `a` converge antes de `b`, indicando que a paisagem de fitness é mais sensível à inclinação da reta do que ao intercepto.
-- A convergência prematura ocorre mas é transitória — o algoritmo retoma melhorias após períodos de estagnação.
-- A solução final (`a = 1.990`, `b = 1.046`) é muito próxima do ótimo teórico (`a = 2.0`, `b = 1.0`).
+- A solução final (`a = 1.975`, `b = 1.114`) é muito próxima do ótimo teórico (`a = 2.0`, `b = 1.0`).
 
 ---
 
@@ -318,9 +322,7 @@ for (int i = 0; i < m; i++) {           // percorre toda a população
 }
 ```
 
-Loop duplo aninhado: para cada indivíduo, calcula o MSE sobre todos os pontos.
-
-Chamada **duas vezes por geração** — é a rotina mais custosa do algoritmo.
+Loop duplo aninhado: para cada indivíduo, calcula o MSE sobre todos os pontos. Chamada **duas vezes por geração** — é a rotina mais custosa do algoritmo.
 
 | | Complexidade |
 |-|---|
@@ -356,11 +358,11 @@ Implementa **Selection Sort** (O(m²)) seguido de uma cópia dos melhores.
 
 ### `Crossover` — `operacoes.c`
 
-**1. Seleção de pares únicos** — no pior caso, verifica todos os pares anteriores para cada novo par → O(quantidade²) = **O(m²/4)**
+**1. Seleção de pares únicos** — sorteia `quantidade/2` pares sem repetição → O(quantidade²) = **O(m²/4)**
 
-**2. Geração dos filhos** — troca de `a` e `b` entre cada par → O(m)
+**2. Geração dos filhos** — troca de `a` e `b` entre cada par, gerando 2 filhos por par → O(quantidade) = **O(m)**
 
-**3. Substituição dos piores** — filhos ocupam a segunda metade da população → O(m)
+**3. Substituição dos piores** — `quantidade` filhos ocupam a segunda metade da população → O(m)
 
 | | Complexidade |
 |-|---|
@@ -379,7 +381,7 @@ for (int i = 1; i < quantidade; i++) {
 }
 ```
 
-Percorre os `m/2` indivíduos, aplicando perturbação com probabilidade 50%.
+Percorre os `m/2 - 1` indivíduos (preserva o melhor), aplicando perturbação com probabilidade 50%.
 
 | | Complexidade |
 |-|---|
@@ -427,28 +429,36 @@ $$T(G, m, n) = O\bigl(G \times (m^2 + m \cdot n)\bigr)$$
 ---
 
 ## Limitações
-- Tamanho de população pequeno: Com apenas `m = 20` indivíduos, a população perde diversidade genética rapidamente, favorecendo a convergência prematura observada na Fase 2. Populações entre `10 <= m <= 200` sustentariam a exploração do espaço de busca por mais tempo e não extrapolaria com a quantidade de gerações estipuladas.
-- Número fixo de gerações: O algoritmo sempre executa exatamente `G` gerações, mesmo que a solução já tenha convergido. Isso representa desperdício de processamento nas longas fases de estagnação.
-- Restrito à regressão linear: A implementação está limitada para o modelo `y = ax + b`. Não é possível ajustar outros tipos de função sem modificar diretamente o código-fonte.
----
-## Conclusão:
 
-O Algoritmo Genético implementado demonstrou ser eficaz para o problema de ajuste de uma função linear `y = ax + b` a um conjunto de pontos. Com apenas 500 gerações e uma população de 20 indivíduos, foi possível convergir para uma solução muito próxima do valor estipulado — atingindo `a = 1.990` e `b = 1.046` frente aos valores ideais `a = 2.0` e `b = 1.0`, com erros relativos de 0,5% e 4,6% respectivamente e um MSE final de apenas 0,00053.
-O processo evolutivo evidenciou um comportamento em três fases: uma convergência inicial agressiva nas primeiras gerações, seguida de um período de estagnação intermediária, e por fim um refinamento progressivo e contínuo que se estendeu até as gerações finais. Esse padrão reforça a importância de um espaço de busca amplo (`[-10, 10]`) para manter diversidade genética e evitar que o algoritmo fique preso em mínimos locais por tempo prolongado.
-Do ponto de vista algorítmico, o projeto permitiu observar na prática os conceitos de análise assintótica discutidos na disciplina. O custo total do algoritmo é dominado pelas operações de ordenação e crossover — ambas O(m²) por geração — e pelo cálculo de fitness — O(m×n), chamado duas vezes por geração — resultando em uma complexidade geral de O(G × (m² + m·n)). Para os parâmetros utilizados no experimento, esse custo se mostrou plenamente viável.
-Por fim, o trabalho consolidou habilidades fundamentais de programação em C, como alocação dinâmica de memória, organização modular com separação de responsabilidades entre arquivos, e uso de ponteiros para manipulação eficiente de estruturas de dados — competências essenciais para os desafios mais avançados da disciplina.
+- **Tamanho de população pequeno:** Com `m = 20` indivíduos, a população pode perder diversidade genética ao longo das gerações, favorecendo a estagnação observada na fase final. Populações maiores sustentariam a exploração do espaço de busca por mais tempo.
+- **Número fixo de gerações:** O algoritmo sempre executa exatamente `G` gerações, mesmo que a solução já tenha convergido. Isso representa desperdício de processamento nas fases de estagnação.
+- **Restrito à regressão linear:** A implementação está limitada ao modelo `y = ax + b`. Não é possível ajustar outros tipos de função sem modificar diretamente o código-fonte.
 
 ---
-## Especificações do ambiente de teste
-Este projeto foi executado utilizando:
 
-- Sistema Operacional: Linux Mint 22.1 Cinnamon
-- Compilador: GCC 13.3.0
-- Hardware: 12th Intel© Core™ i5-1235U × 10 ; 7.5GB RAM; 512.1GB SSD; Intel Corporation Alder Lake-UP3 GT2 [UHD Graphics].
+## Conclusão
 
-## Creditos
+O Algoritmo Genético implementado demonstrou ser eficaz para o problema de ajuste de uma função linear `y = ax + b` a um conjunto de pontos. Com 500 gerações e uma população de 20 indivíduos, foi possível convergir para uma solução próxima do valor estipulado — atingindo `a = 1.975` e `b = 1.114` frente aos valores ideais `a = 2.0` e `b = 1.0`, com um MSE final de apenas **0.003314**.
 
-Arquivo Makefile concedido pelo professor [Michel Pires](https://github.com/mpiress)
+O processo evolutivo evidenciou um comportamento em três fases: uma convergência inicial rápida nas primeiras gerações, seguida de refinamento progressivo, e por fim um período de estagnação que se estendeu até as gerações finais. Esse padrão reforça a importância de um espaço de busca amplo (`[-10, 10]`) para manter diversidade genética.
+
+Do ponto de vista algorítmico, o projeto permitiu observar na prática os conceitos de análise assintótica discutidos na disciplina. O custo total do algoritmo é dominado pelas operações de ordenação e crossover — ambas O(m²) por geração — e pelo cálculo de fitness — O(m×n), chamado duas vezes por geração — resultando em uma complexidade geral de **O(G × (m² + m·n))**.
+
+Por fim, o trabalho consolidou habilidades fundamentais de programação em C: alocação dinâmica de memória, organização modular com separação de responsabilidades entre arquivos, e uso de ponteiros para manipulação eficiente de estruturas de dados.
+
+---
+
+## Especificações do Ambiente de Teste
+
+- **Sistema Operacional:** Linux Mint 22.1 Cinnamon
+- **Compilador:** GCC 13.3.0
+- **Hardware:** Intel® Core™ i5-1235U × 10 | 7.5 GB RAM | 512 GB SSD | Intel UHD Graphics
+
+---
+
+## Créditos
+
+Arquivo Makefile concedido pelo professor [Michel Pires](https://github.com/mpiress).
 
 ## Autor
 
